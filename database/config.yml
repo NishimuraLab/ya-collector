@@ -1,0 +1,7 @@
+db:
+  development:
+    adapter: mysql2
+    host: localhost
+    database: yahoo_auction_db
+    username: <%= ENV['YAHOO_AUCTION_DB_USERNAME'] %>
+    password: <%= ENV['YAHOO_AUCTION_DB_PASSWORD'] %>
