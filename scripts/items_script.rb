@@ -100,7 +100,6 @@ yahoo = YahooApiConnector.new(ENV['YAHOO_API_KEY'])
 # exit
 # puts Hashie::Mash.new(yahoo.category_leaf_by('23632')).ResultSet.attributes.totalResultsAvailable
 # puts Hashie::Mash.new(yahoo.category_leaf_by('23336', 16)).ResultSet.Result.Item.map{|item| item[:AuctionID]}
-# exit
 Category.find_each(batch_size: 25) do |category|
   # category_idが0だとBad Requestのエラーが返ってくるので飛ばす
   next if category.category_id == 0
@@ -123,10 +122,12 @@ Category.find_each(batch_size: 25) do |category|
       puts "category_id: #{category.category_id}, page: #{page + 1}"
       begin
         # timesは0から始まる
-        result = Hashie::Mash.new(yahoo.category_leaf_by(category.category_id, page + 1)).ResultSet.Result
+        result_set = Hashie::Mash.new(yahoo.category_leaf_by(category.category_id, page + 1)).ResultSet
+        result = result_set.Result
         item_auction_ids = result.Item.map{|item| item[:AuctionID]}
       rescue => ex
         puts "error!! \n category_id: #{category.category_id}"
+        puts result_set
         Error.create!({
           object_id: category.category_id,
           object_type: 'category',
