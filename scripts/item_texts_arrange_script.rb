@@ -20,5 +20,6 @@ Item.find_each(batch_size: 25) do |item|
   ActiveRecord::Base.transaction do
     item.non_tagged_description = wakati
     item.save!
+    puts "success to update non tagged description of auction_id: #{item.auction_id}"
   end
 end
