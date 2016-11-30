@@ -13,6 +13,8 @@ def can_include?(line)
 end
 
 Item.find_each(batch_size: 25) do |item|
+  next if item.non_tagged_description != nil
+
   description = item.description
   non_tagged = description.gsub(/<.+?>/, '')
   nm = Natto::MeCab.new(output_format_type: :wakati)
