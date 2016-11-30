@@ -12,7 +12,7 @@ def can_include?(line)
   !line.include?("記号") || !line.include?("地域") || !line.include?("助動詞") || !line.include?("助詞")
 end
 
-Item.find_each(batch_size: 25) do |item|
+Item.where(non_tagged_description: nil).find_each(batch_size: 25) do |item|
   next if item.non_tagged_description != nil
 
   description = item.description
@@ -30,3 +30,4 @@ Item.find_each(batch_size: 25) do |item|
     puts ex.message
   end
 end
+puts "end of script"
