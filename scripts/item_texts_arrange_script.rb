@@ -15,9 +15,10 @@ end
 Item.find_each(batch_size: 25) do |item|
   description = item.description
   non_tagged = description.gsub(/<.+?>/, '')
-  nm = Natto::MeCab.new
-  mparsed = nm.parse(non_tagged)
-  mparsed.split("\n").each do |line|
-    puts line if can_include?(line)
+  nm = Natto::MeCab.new(output_format_type: :wakati)
+  wakati = nm.parse(non_tagged)
+  ActiveRecord::Base.transaction do
+    item.non_tagged_description = wakati
+    item.save!
   end
 end
