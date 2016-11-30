@@ -17,9 +17,14 @@ Item.find_each(batch_size: 25) do |item|
   non_tagged = description.gsub(/<.+?>/, '')
   nm = Natto::MeCab.new(output_format_type: :wakati)
   wakati = nm.parse(non_tagged)
-  ActiveRecord::Base.transaction do
-    item.non_tagged_description = wakati
-    item.save!
-    puts "success to update non tagged description of auction_id: #{item.auction_id}"
+  begin
+    ActiveRecord::Base.transaction do
+      item.non_tagged_description = wakati
+      item.save!
+      puts "success to update non tagged description of auction_id: #{item.auction_id}"
+    end
+  rescue ex
+    puts "failed!!! auction_id: #{item.auction_id}"
+    puts ex.message
   end
 end
