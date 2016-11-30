@@ -13,8 +13,6 @@ def can_include?(line)
 end
 
 Item.where(non_tagged_description: nil).find_each(batch_size: 25) do |item|
-  next if item.non_tagged_description != nil
-
   description = item.description
   non_tagged = description.gsub(/<.+?>/, '')
   nm = Natto::MeCab.new(output_format_type: :wakati)
@@ -25,7 +23,7 @@ Item.where(non_tagged_description: nil).find_each(batch_size: 25) do |item|
       item.save!
       puts "success to update non tagged description of auction_id: #{item.auction_id}"
     end
-  rescue ex
+  rescue => ex
     puts "failed!!! auction_id: #{item.auction_id}"
     puts ex.message
   end
