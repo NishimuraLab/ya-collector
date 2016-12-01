@@ -12,18 +12,23 @@ def not_include?(line)
   line.include?("記号") || line.include?("地域") || line.include?("助動詞") || line.include?("助詞")
 end
 
-Item.where(non_tagged_description: nil).find_each(batch_size: 25) do |item|
+Item.find_each(batch_size: 25) do |item|
   description = item.description
   non_tagged = description.gsub(/<.+?>/, '').gsub(/\&nbsp/, '')
 
   nm = Natto::MeCab.new
   mecabed = nm.parse(non_tagged)
-  mecabed.split('\n').each do |line|
-    next if not_include?(line)
 
+  # 不要な行を省く
+  line_removed = ''
+  mecabed.split(/\n/).each do |line|
+    next if not_include?(line)
+    line_removed += line.split(/\t/)[0]
   end
+
   nm_wakati = Natto::MeCab.new(output_format_type: :wakati)
-  wakati = nm_wakati.parse(non_tagged)
+  wakati = nm_wakati.parse(line_removed)
+  puts wakati
   begin
     ActiveRecord::Base.transaction do
       item.non_tagged_description = wakati
