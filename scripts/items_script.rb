@@ -119,6 +119,7 @@ Category.find_each(batch_size: 25) do |category|
     end
 
     total_page_cnt.times do |page|
+      break if page > 750
       puts "category_id: #{category.category_id}, page: #{page + 1}"
       begin
         # timesは0から始まる
