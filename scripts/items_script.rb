@@ -76,7 +76,9 @@ def params_of_item(item)
     is_adult: item.IsAdult,
     charity_option_propotion: item.CharityOption,
     answered_q_and_a_num: item.AnsweredQAndANum,
-    status: item.Status
+    status: item.Status,
+    non_tagged_description: wakati(item.Description),
+    wakati_title: wakati(item.Title)
   }
 end
 
@@ -85,6 +87,30 @@ def params_of_image(image, item_id)
     item_id: item_id,
     image_url: image
   }
+end
+
+def not_include?(line)
+  line.include?("記号") || line.include?("地域") || line.include?("助動詞") || line.include?("助詞")
+end
+
+def wakati(text)
+  return if !text
+  nm = Natto::MeCab.new
+  mecabed = nm.parse(trim_tag(text))
+
+  # 不要な行を省く
+  line_removed = ''
+  mecabed.split(/\n/).each do |line|
+    next if not_include?(line)
+    line_removed += line.split(/\t/)[0]
+  end
+
+  nm_wakati = Natto::MeCab.new(output_format_type: :wakati)
+  nm_wakati.parse(line_removed)
+end
+
+def trim_tag(text)
+  text.gsub(/<.+?>/, '').gsub(/\&nbsp/, '')
 end
 
 def generate_error_message(ex)
