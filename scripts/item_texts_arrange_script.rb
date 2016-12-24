@@ -9,22 +9,19 @@ config = YAML.load(ERB.new(File.read('database/config.yml')).result)
 ActiveRecord::Base.establish_connection(config['db']['development'])
 
 def not_include?(line)
-  line.include?("記号") || line.include?("地域") || line.include?("助動詞") || line.include?("助詞")
+  line.include?("記号") || line.include?("地域") || line.include?("助動詞") || line.include?("助詞") || line.include?("EOS")
 end
 
 def wakati(text)
-  nm = Natto::MeCab.new
-  mecabed = nm.parse(trim_tag(text))
+  nm = Natto::MeCab.new(dicdir: '/usr/local/lib/mecab/dic/mecab-ipadic-neologd/')
+  parsed = nm.parse(trim_tag(text))
 
-  # 不要な行を省く
-  line_removed = ''
-  mecabed.split(/\n/).each do |line|
+  wakatied_text = ''
+  parsed.split(/\n/).each do |line|
     next if not_include?(line)
-    line_removed += line.split(/\t/)[0]
+    wakatied_text += line.split(/\t/)[0] + ' '
   end
-
-  nm_wakati = Natto::MeCab.new(output_format_type: :wakati)
-  nm_wakati.parse(line_removed)
+  wakatied_text
 end
 
 def trim_tag(text)
@@ -37,8 +34,8 @@ Item.find_each(batch_size: 25) do |item|
 
   begin
     ActiveRecord::Base.transaction do
-      item.non_tagged_description = wakati_description
-      item.wakati_title = wakati_title
+      item.neologd_wakati_description = wakati_description
+      item.neologd_wakati_title = wakati_title
       item.save!
       puts "success to wakati and insert. auction_id: #{item.auction_id}"
     end
