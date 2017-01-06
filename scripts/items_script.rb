@@ -77,8 +77,6 @@ def params_of_item(item)
     charity_option_propotion: item.CharityOption,
     answered_q_and_a_num: item.AnsweredQAndANum,
     status: item.Status,
-    non_tagged_description: wakati(item.Description),
-    wakati_title: wakati(item.Title)
   }
 end
 
@@ -89,30 +87,6 @@ def params_of_image(image, item_id)
   }
 end
 
-def not_include?(line)
-  line.include?("記号") || line.include?("地域") || line.include?("助動詞") || line.include?("助詞")
-end
-
-def wakati(text)
-  return if !text
-  nm = Natto::MeCab.new
-  mecabed = nm.parse(trim_tag(text))
-
-  # 不要な行を省く
-  line_removed = ''
-  mecabed.split(/\n/).each do |line|
-    next if not_include?(line)
-    line_removed += line.split(/\t/)[0]
-  end
-
-  nm_wakati = Natto::MeCab.new(output_format_type: :wakati)
-  nm_wakati.parse(line_removed)
-end
-
-def trim_tag(text)
-  text.gsub(/<.+?>/, '').gsub(/\&nbsp/, '')
-end
-
 def generate_error_message(ex)
   ex.message + "\n" + ex.backtrace.join("\n")
 end
@@ -121,11 +95,6 @@ config = YAML.load(ERB.new(File.read('database/config.yml')).result)
 ActiveRecord::Base.establish_connection(config['db']['development'])
 
 yahoo = YahooApiConnector.new(ENV['YAHOO_API_KEY'])
-# puts Hashie::Mash.new(yahoo.item_by('e165233993')).ResultSet.Result
-# puts params_of_item(Hashie::Mash.new(yahoo.item_by('e165233993')).ResultSet.Result)
-# exit
-# puts Hashie::Mash.new(yahoo.category_leaf_by('23632')).ResultSet.attributes.totalResultsAvailable
-# puts Hashie::Mash.new(yahoo.category_leaf_by('23336', 16)).ResultSet.Result.Item.map{|item| item[:AuctionID]}
 Category.find_each(batch_size: 25) do |category|
   # category_idが0だとBad Requestのエラーが返ってくるので飛ばす
   next if category.category_id == 0
