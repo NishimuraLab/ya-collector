@@ -18,12 +18,12 @@ def noun?(line)
   line.include?("名詞")
 end
 
-def integer?(line)
+def number?(line)
   line.include?("数")
 end
 
 def should_include?(line)
-  noun?(line) || integer?(line)
+  noun?(line) || number?(line)
 end
 
 # deprecated
@@ -65,7 +65,7 @@ Item.find_each(batch_size: 25) do |item|
   begin
     ActiveRecord::Base.transaction do
       item.processed_texts.create!(
-        process_type: 'noun_only',
+        process_type: 'noun_number_only',
         description: wakati_white_description,
         title: wakati_white_description
       )
