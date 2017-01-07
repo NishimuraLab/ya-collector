@@ -15,7 +15,7 @@ def not_include?(line)
 end
 
 def noun?(line)
-  line.include?("名詞")
+  line.include?("名詞,固有名詞") || line.include?("名詞,一般")
 end
 
 def number?(line)
@@ -57,7 +57,7 @@ end
 
 Item.find_each(batch_size: 25) do |item|
   wakati_white_description = wakati_white(item.description)
-  wakati_white_item = wakati_white(item.title)
+  wakati_white_title = wakati_white(item.title)
 
   wakati_black_description = wakati_black(item.description)
   wakati_black_title = wakati_black(item.title)
