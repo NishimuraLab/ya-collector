@@ -67,7 +67,7 @@ Item.find_each(batch_size: 25) do |item|
       item.processed_texts.create!(
         process_type: 'noun_number_only',
         description: wakati_white_description,
-        title: wakati_white_description
+        title: wakati_white_title
       )
       item.processed_texts.create!(
         process_type: 'symbol_region_postposition_averb_eos_excluded',
