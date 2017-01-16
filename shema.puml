@@ -1,0 +1,33 @@
+@startuml
+hide circle
+
+object item {
+  id
+  - auction_id
+  - category_id
+  seller_id
+  title
+  description
+  auction_item_url
+  ...
+}
+
+object processed_text {
+  id
+  - auction_id
+  process_type
+  title
+  description
+}
+
+object category {
+  id
+  - category_id
+  category_name
+  category_id_path
+}
+
+
+item <-up- category : category has many items
+item --right--> processed_text : item has many processed_texts
+@enduml
